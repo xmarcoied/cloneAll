@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os/exec"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		}
 		username string
 	)
-	fmt.Println("Enter username:")
+	fmt.Println("Enter github username:")
 	fmt.Scanf("%s", &username)
 
 	url := fmt.Sprintf("https://api.github.com/users/%s/repos", username)
@@ -28,5 +29,17 @@ func main() {
 	json.Unmarshal([]byte(b.String()), &data)
 
 	fmt.Println("Numbers of repositories:", len(data))
-	fmt.Println(data)
+
+	for i := 0; i < len(data); i++ {
+		fmt.Printf("Cloning %s repository\n", data[i].RepoName)
+		repo_url := fmt.Sprintf("https://github.com/%s/%s.git", username, data[i].RepoName)
+		fmt.Println(repo_url)
+		cmd := exec.Command("git", "clone", repo_url)
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("Finished Cloning %s repository\n", data[i].RepoName)
+	}
+
 }
