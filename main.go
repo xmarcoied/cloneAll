@@ -3,19 +3,27 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"os/exec"
 )
 
+var (
+	data []struct {
+		RepoName string `json:"name"`
+	}
+	username string
+	path     string
+)
+
+func init() {
+	flag.StringVar(&path, "path", ".", "The path will be installed at")
+	flag.Parse()
+}
+
 func main() {
-	var (
-		data []struct {
-			RepoName string `json:"name"`
-		}
-		username string
-	)
 	fmt.Println("Enter github username:")
 	fmt.Scanf("%s", &username)
 
@@ -33,7 +41,7 @@ func main() {
 	for i := 0; i < len(data); i++ {
 		fmt.Printf("Cloning %s repository... \n", data[i].RepoName)
 		RepoURL := fmt.Sprintf("https://github.com/%s/%s.git", username, data[i].RepoName)
-		FilePATH := fmt.Sprintf("%s/%s", username, data[i].RepoName)
+		FilePATH := fmt.Sprintf("%s/%s/%s", path, username, data[i].RepoName)
 		fmt.Println(RepoURL)
 		cmd := exec.Command("git", "clone", RepoURL, FilePATH)
 		err := cmd.Run()
