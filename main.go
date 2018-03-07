@@ -20,8 +20,8 @@ func main() {
 	fmt.Scanf("%s", &username)
 
 	url := fmt.Sprintf("https://api.github.com/users/%s/repos", username)
+	fmt.Println("Fetching data from github ... ")
 	res, _ := http.Get(url)
-	defer res.Body.Close()
 
 	var b bytes.Buffer
 	io.Copy(&b, res.Body)
@@ -31,15 +31,18 @@ func main() {
 	fmt.Println("Numbers of repositories:", len(data))
 
 	for i := 0; i < len(data); i++ {
-		fmt.Printf("Cloning %s repository\n", data[i].RepoName)
-		repo_url := fmt.Sprintf("https://github.com/%s/%s.git", username, data[i].RepoName)
-		fmt.Println(repo_url)
-		cmd := exec.Command("git", "clone", repo_url)
+		fmt.Printf("Cloning %s repository... \n", data[i].RepoName)
+		RepoURL := fmt.Sprintf("https://github.com/%s/%s.git", username, data[i].RepoName)
+		FilePATH := fmt.Sprintf("%s/%s", username, data[i].RepoName)
+		fmt.Println(RepoURL)
+		cmd := exec.Command("git", "clone", RepoURL, FilePATH)
 		err := cmd.Run()
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Printf("Finished Cloning %s repository\n", data[i].RepoName)
+
 	}
+	defer res.Body.Close()
 
 }
